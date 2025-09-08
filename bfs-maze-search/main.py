@@ -17,20 +17,21 @@ import sys
 import time
 
 # Configuration
-CELL_SIZE = 12  # pixels per cell
-MAZE_W = 51     # must be odd
-MAZE_H = 41     # must be odd
+CELL_SIZE = 14  # pixels per cell (increased for visibility)
+MAZE_W = 41     # slightly smaller (must be odd) -> less complex
+MAZE_H = 31     # slightly smaller (must be odd) -> less complex
 BORDER = 1
 
-# Colors
-COLOR_BG = (30, 30, 30)
-COLOR_WALL = (10, 10, 10)
-COLOR_OPEN = (230, 230, 230)
-COLOR_VISITED = (100, 160, 255)
-COLOR_FRONTIER = (80, 200, 120)
-COLOR_PATH = (255, 220, 80)
-COLOR_START = (200, 60, 60)
-COLOR_GOAL = (200, 60, 60)
+# Colors (tweaked for clearer visualization)
+COLOR_BG = (18, 18, 30)
+COLOR_WALL = (15, 15, 15)
+COLOR_OPEN = (240, 240, 240)
+COLOR_VISITED = (80, 140, 220)
+COLOR_FRONTIER = (70, 220, 140)
+COLOR_PATH = (255, 200, 60)
+COLOR_CURRENT = (255, 120, 120)
+COLOR_START = (200, 50, 50)
+COLOR_GOAL = (50, 200, 100)
 
 FPS = 60
 
@@ -167,6 +168,10 @@ class MazeVisualizer:
         # path
         for (x, y) in self.path:
             self.draw_cell(x, y, COLOR_PATH)
+        # current node (highlight prominently)
+        if self.current is not None:
+            cx, cy = self.current
+            self.draw_cell(cx, cy, COLOR_CURRENT)
         # start and goal
         self.draw_cell(self.start[0], self.start[1], COLOR_START)
         self.draw_cell(self.goal[0], self.goal[1], COLOR_GOAL)
