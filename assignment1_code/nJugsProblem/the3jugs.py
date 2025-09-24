@@ -73,8 +73,36 @@ class NJugsProblem(SearchProblem):
     i corresponds to the jug affected by the action
     j is a valid number only if the action is "pour" (i.e. pour from jug i into jug j). Otherwise it should be set to None
     """
-    def actions(state):
-        raise NotImplementedError
+    def actions(self, state):
+        """
+        Return a list of valid actions for the given state.
+
+        Each action is a tuple (kind, i, j) where kind is one of
+        'fill', 'empty', 'pour'. For 'fill' and 'empty' j is None.
+        For 'pour', i is source index and j is destination index.
+        """
+        if state is None:
+            return []
+
+        actions = []
+        # fill and empty actions
+        for i in range(self.n):
+            if state[i] < self.capacities[i]:
+                actions.append(("fill", i, None))
+            if state[i] > 0:
+                actions.append(("empty", i, None))
+
+        # pour actions between distinct jugs
+        for i in range(self.n):
+            if state[i] == 0:
+                continue
+            for j in range(self.n):
+                if i == j:
+                    continue
+                if state[j] < self.capacities[j]:
+                    actions.append(("pour", i, j))
+
+        return actions
 
     """
     Returns the state of the jugs after taking action (kind, i, j), without modifying the original state.
@@ -89,8 +117,56 @@ class NJugsProblem(SearchProblem):
     implementation of this function. You’ll likely want to make a 
     copy of the state first before making any changes.
     """
-    def succ(state, action):
-        raise NotImplementedError
+    def succ(self, state, action):
+        """
+        Return the new state after applying `action` to `state`.
+
+        Raises an exception if the action is invalid for the given state.
+        """
+        if not isinstance(action, tuple) or len(action) != 3:
+            raise ValueError("Action must be a tuple (kind, i, j)")
+
+        kind, i, j = action
+
+        # basic validation of indices
+        if not (isinstance(i, int) and 0 <= i < self.n):
+            raise IndexError("Invalid jug index i: {}".format(i))
+        if j is not None and not (isinstance(j, int) and 0 <= j < self.n):
+            raise IndexError("Invalid jug index j: {}".format(j))
+
+        # copy state to mutable list
+        ns = list(state)
+
+        if kind == "fill":
+            # must be allowed: current amount < capacity
+            if ns[i] >= self.capacities[i]:
+                raise ValueError("Cannot fill jug {}: already full".format(i))
+            ns[i] = self.capacities[i]
+            return tuple(ns)
+
+        if kind == "empty":
+            if ns[i] == 0:
+                raise ValueError("Cannot empty jug {}: already empty".format(i))
+            ns[i] = 0
+            return tuple(ns)
+
+        if kind == "pour":
+            if j is None:
+                raise ValueError("Pour action requires destination index j")
+            if i == j:
+                raise ValueError("Cannot pour a jug into itself")
+            if ns[i] == 0:
+                raise ValueError("Cannot pour from empty jug {}".format(i))
+            if ns[j] >= self.capacities[j]:
+                raise ValueError("Cannot pour into full jug {}".format(j))
+
+            space = self.capacities[j] - ns[j]
+            transfer = min(ns[i], space)
+            ns[i] -= transfer
+            ns[j] += transfer
+            return tuple(ns)
+
+        raise ValueError("Unknown action kind: {}".format(kind))
 
 
     # ---- Helpers ----
