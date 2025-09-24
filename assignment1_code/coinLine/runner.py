@@ -16,7 +16,7 @@ BIG_FONT = pygame.font.SysFont("arial", 40)
 CLOCK = pygame.time.Clock()
 
 # Coin Details ----------------
-NUM_COINS = 40
+NUM_COINS = 10
 GAP = 20
 COIN_RADIUS = (WIDTH - GAP*(NUM_COINS+2))//(NUM_COINS*2)
 BUTTON_WIDTH = 150
