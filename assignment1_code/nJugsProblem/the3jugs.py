@@ -104,6 +104,15 @@ class NJugsProblem(SearchProblem):
 
         return actions
 
+    # NOTE (Part 3 - instrumentation hint):
+    # The return value of `actions(state)` is the local branching factor at `state`.
+    # To compute the average branching factor b across the search you can:
+    #  - when expanding a state in a search algorithm, call `problem.actions(state)` and
+    #    accumulate its length into `total_child_count` and increment `nodes_expanded` by 1.
+    #  - after the search finishes, b = total_child_count / nodes_expanded (avoid div by zero).
+    # This keeps the search model-agnostic: all solvers can reuse the same metric by calling
+    # `actions()` each time they expand a node.
+
     """
     Returns the state of the jugs after taking action (kind, i, j), without modifying the original state.
 
