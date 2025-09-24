@@ -130,7 +130,39 @@ class BFSSearch:
         self.problem = problem
 
     def solve(self):
-        raise NotImplementedError()
+        start = self.problem.start_state()
+        start_key = str(start)
+
+        queue = deque()
+        queue.append((start, []))  # state, path-from-after-start
+
+        explored = set()
+        explored.add(start_key)
+
+        while queue:
+            state, path = queue.popleft()
+
+            if self.problem.is_end(state):
+                return dict(
+                    best_cost=len(path),
+                    best_path=[self.problem.start_state()] + path,
+                    found=True,
+                    expanded=len(explored),
+                )
+
+            for action in self.problem.actions(state):
+                next_state = self.problem.succ(state, action)
+                key = str(next_state)
+                if key not in explored:
+                    explored.add(key)
+                    queue.append((next_state, path + [next_state]))
+
+        return dict(
+            best_cost=float('nan'),
+            best_path=[],
+            found=False,
+            expanded=len(explored),
+        )
 
 """
 Add an iterative implementation of DFS.
@@ -150,7 +182,39 @@ class DFSSearch:
         self.problem = problem
 
     def solve(self):
-        raise NotImplementedError()
+        start = self.problem.start_state()
+        start_key = str(start)
+
+        stack = [(start, [])]  # state, path-from-after-start
+        explored = set()
+        explored.add(start_key)
+
+        while stack:
+            state, path = stack.pop()
+
+            if self.problem.is_end(state):
+                return dict(
+                    best_cost=len(path),
+                    best_path=[self.problem.start_state()] + path,
+                    found=True,
+                    expanded=len(explored),
+                )
+
+            # To mimic recursive DFS order, iterate actions in reverse when pushing
+            actions = list(self.problem.actions(state))
+            for action in reversed(actions):
+                next_state = self.problem.succ(state, action)
+                key = str(next_state)
+                if key not in explored:
+                    explored.add(key)
+                    stack.append((next_state, path + [next_state]))
+
+        return dict(
+            best_cost=float('nan'),
+            best_path=[],
+            found=False,
+            expanded=len(explored),
+        )
 
 
 
